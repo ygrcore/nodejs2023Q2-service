@@ -4,30 +4,30 @@ import { Track } from 'src/dto/music';
 
 @Controller('tracks')
 export class TracksController {
-  constructor(private readonly trackService: TracksService) {}
+  constructor(private readonly tracksService: TracksService) {}
 
   @Get()
   getAllTracks() {
-    return this.trackService.getAllTracks();
+    return this.tracksService.getAllTracks();
   }
 
   @Get(':id')
   getTrackById(@Param('id') id: string) {
-    return this.trackService.getTrackById(id);
+    return this.tracksService.getTrackById(id);
   }
 
   @Post()
   createTrack(@Body() track: Track) {
-    return this.trackService.createTrack(track);
+    return this.tracksService.createTrack(track);
   }
 
   @Put(':id')
   updateTrack(@Param('id') id: string, @Body() track: Track) {
-    return this.trackService.updateTrack(id, track);
+    return this.tracksService.updateTrack(id, track);
   }
 
   @Delete(':id')
   deleteTrack(@Param('id') id: string) {
-    this.trackService.deleteTrack(id);
+    this.tracksService.deleteTrack(id);
   }
 }

@@ -29,10 +29,12 @@ export class TracksService {
 
   updateTrack(id: string, updatedTrack: Track): Track {
     const trackIndex = this.tracks.findIndex(t => t.id === id);
+    const track = this.tracks.find(t => t.id === id);
+
     if (trackIndex === -1) {
       throw new NotFoundException(`Track with id ${id} not found`);
     }
-    this.tracks.splice(trackIndex, 1, updatedTrack);
+    this.tracks.splice(trackIndex, 1, {...track, ...updatedTrack});
     return this.tracks[trackIndex];
   }
 
