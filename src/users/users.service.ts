@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { User, CreateUserDto, UpdatePasswordDto } from 'src/dto/user';
 import * as uuid from 'uuid';
 
