@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Artist } from 'src/dto/music';
+import { IArtist } from 'src/dto/music';
 import * as uuid from 'uuid';
 
 @Injectable()
 export class ArtistsService {
-  private artists: Artist[] = [];
+  private artists: IArtist[] = [];
 
-  getAllArtists(): Artist[] {
+  getAllArtists(): IArtist[] {
     return this.artists;
   }
 
-  getArtistById(id: string): Artist {
+  getArtistById(id: string): IArtist {
     const artist = this.artists.find(a => a.id === id);
     if (!artist) {
       throw new NotFoundException(`Artist with id ${id} not found`);
@@ -18,8 +18,8 @@ export class ArtistsService {
     return artist;
   }
 
-  createArtist(artist: Artist): Artist {
-    const newArtist: Artist = {
+  createArtist(artist: IArtist): IArtist {
+    const newArtist: IArtist = {
       ...artist,
       id: uuid.v4()
     }
@@ -28,7 +28,7 @@ export class ArtistsService {
     return newArtist;
   }
 
-  updateArtist(id: string, updatedArtist: Artist): Artist {
+  updateArtist(id: string, updatedArtist: IArtist): IArtist {
     const artistIndex = this.artists.findIndex(a => a.id === id);
     const artist = this.artists.find(a => a.id === id);
 

@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Track } from 'src/dto/music';
+import { ITrack } from 'src/dto/music';
 import * as uuid from 'uuid';
 
 @Injectable()
 export class TracksService {
-  private tracks: Track[] = [];
+  private tracks: ITrack[] = [];
 
-  getAllTracks(): Track[] {
+  getAllTracks(): ITrack[] {
     return this.tracks;
   }
 
-  getTrackById(id: string): Track {
+  getTrackById(id: string): ITrack {
     const track = this.tracks.find(t => t.id === id);
     if (!track) {
       throw new NotFoundException(`Track with id ${id} not found`);
@@ -18,8 +18,8 @@ export class TracksService {
     return track;
   }
 
-  createTrack(track: Track): Track {
-    const newTrack: Track = {
+  createTrack(track: ITrack): ITrack {
+    const newTrack: ITrack = {
       ...track,
       id: uuid.v4(),
     }
@@ -27,7 +27,7 @@ export class TracksService {
     return newTrack;
   }
 
-  updateTrack(id: string, updatedTrack: Track): Track {
+  updateTrack(id: string, updatedTrack: ITrack): ITrack {
     const trackIndex = this.tracks.findIndex(t => t.id === id);
     const track = this.tracks.find(t => t.id === id);
 

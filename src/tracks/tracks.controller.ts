@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
 import { TracksService } from './tracks.service';
-import { Track } from 'src/dto/music';
+import { ITrack } from 'src/dto/music';
 
 @Controller('track')
 export class TracksController {
@@ -17,12 +17,12 @@ export class TracksController {
   }
 
   @Post()
-  createTrack(@Body() track: Track) {
+  createTrack(@Body() track: ITrack) {
     return this.tracksService.createTrack(track);
   }
 
   @Put(':id')
-  updateTrack(@Param('id') id: string, @Body() track: Track) {
+  updateTrack(@Param('id') id: string, @Body() track: ITrack) {
     return this.tracksService.updateTrack(id, track);
   }
 

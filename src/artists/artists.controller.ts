@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
-import { Artist } from 'src/dto/music';
+import { IArtist } from 'src/dto/music';
 
 @Controller('artist')
 export class ArtistsController {
@@ -17,12 +17,12 @@ export class ArtistsController {
   }
 
   @Post()
-  createArtist(@Body() artist: Artist) {
+  createArtist(@Body() artist: IArtist) {
     return this.artistsService.createArtist(artist)
   }
 
   @Put(':id')
-  updatedArtist(@Param('id') id: string, @Body() artist: Artist) {
+  updatedArtist(@Param('id') id: string, @Body() artist: IArtist) {
     return this.artistsService.updateArtist(id, artist);
   }
 
