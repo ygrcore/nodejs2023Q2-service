@@ -4,7 +4,7 @@ import { CreateUserDto, UpdatePasswordDto } from '../dto/user';
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   @Get()
   getAllUsers() {

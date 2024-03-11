@@ -4,7 +4,7 @@ import { IArtist } from 'src/dto/music';
 
 @Controller('artist')
 export class ArtistsController {
-  constructor(private readonly artistsService: ArtistsService) {}
+  constructor(private artistsService: ArtistsService) {}
 
   @Get()
   getAllArtists() {

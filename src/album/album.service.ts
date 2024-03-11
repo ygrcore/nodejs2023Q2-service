@@ -7,47 +7,32 @@ import * as uuid from 'uuid';
 
 @Injectable()
 export class AlbumService {
-  constructor(private readonly dbService: DbService) {}
+  constructor(private dbService: DbService) {}
 
   create(createAlbumDto: CreateAlbumDto) {
     const newAlbum: IAlbum = {
       ...createAlbumDto,
       id: uuid.v4()
     }
-    this.dbService.db.albums.push(newAlbum);
+
+    this.dbService.addAlbum(newAlbum);
 
     return newAlbum;
   }
 
   findAll(): IAlbum[] {
-    return this.dbService.db.albums;
+    return this.dbService.getAllAlbums();
   }
 
   findOne(id: string): IAlbum {
-    const album = this.dbService.db.albums.find(a => a.id === id);
-    if (!album) {
-      throw new NotFoundException(`Album with id ${id} not found`);
-    }
-    return album;
+    return this.dbService.getAlbumById(id);
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto): IAlbum {
-    const index = this.dbService.db.albums.findIndex(a => a.id === id);
-    const album = this.dbService.db.albums.find(a => a.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException(`Album with id ${id} not found`);
-    }
-
-    this.dbService.db.albums.splice(index, 1, {...album, ...updateAlbumDto})
-    return this.dbService.db.albums[index];
+    return this.dbService.updateAlbum(id, updateAlbumDto)
   }
 
   remove(id: string): void {
-    const index = this.dbService.db.albums.findIndex(a => a.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Album with id ${id} not found`);
-    }
-    this.dbService.db.albums.splice(index, 1);
+    this.dbService.deleteAlbum(id);
   }
 }

@@ -5,7 +5,7 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private readonly albumService: AlbumService) {}
+  constructor(private albumService: AlbumService) {}
 
   @Post()
   create(@Body() createAlbumDto: CreateAlbumDto) {

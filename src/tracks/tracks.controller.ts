@@ -4,7 +4,7 @@ import { ITrack } from 'src/dto/music';
 
 @Controller('track')
 export class TracksController {
-  constructor(private readonly tracksService: TracksService) {}
+  constructor(private tracksService: TracksService) {}
 
   @Get()
   getAllTracks() {

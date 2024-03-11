@@ -5,18 +5,14 @@ import * as uuid from 'uuid';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly dbService: DbService) {}
+  constructor(private dbService: DbService) {}
 
   getAllUsers(): IUser[] {
-    return this.dbService.db.users
+    return this.dbService.getAllUsers();
   }
 
   getUserById(id: string): IUser {
-    const user = this.dbService.db.users.find(u => u.id === id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    return user;
+    return this.dbService.getUserById(id);
   }
 
   createUser(createUserDto: CreateUserDto): IUser {
@@ -27,7 +23,8 @@ export class UsersService {
       updatedAt: Date.now(),
       ...createUserDto,
     };
-    this.dbService.db.users.push(newUser);
+
+    this.dbService.addUser(newUser);
     return newUser;
   }
 
@@ -46,10 +43,6 @@ export class UsersService {
   }
 
   deleteUser(id: string): void {
-    const index = this.dbService.db.users.findIndex(u => u.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    this.dbService.db.users.splice(index, 1);
+    this.dbService.deleteUser(id);
   }
 }

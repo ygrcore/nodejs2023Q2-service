@@ -5,7 +5,7 @@ import { UpdateFavDto } from './dto/update-fav.dto';
 
 @Controller('favs')
 export class FavsController {
-  constructor(private readonly favsService: FavsService) {}
+  constructor(private favsService: FavsService) {}
 
   @Get()
   findAll() {

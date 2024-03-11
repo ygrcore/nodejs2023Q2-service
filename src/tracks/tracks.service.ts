@@ -5,18 +5,14 @@ import * as uuid from 'uuid';
 
 @Injectable()
 export class TracksService {
-  constructor(private readonly dbService: DbService) {}
+  constructor(private dbService: DbService) {}
 
   getAllTracks(): ITrack[] {
-    return this.dbService.db.tracks;
+    return this.dbService.getAllTracks();
   }
 
   getTrackById(id: string): ITrack {
-    const track = this.dbService.db.tracks.find(t => t.id === id);
-    if (!track) {
-      throw new NotFoundException(`Track with id ${id} not found`);
-    }
-    return track;
+    return this.dbService.getTrackById(id);
   }
 
   createTrack(track: ITrack): ITrack {
@@ -24,26 +20,16 @@ export class TracksService {
       ...track,
       id: uuid.v4(),
     }
-    this.dbService.db.tracks.push(newTrack);
+
+    this.dbService.addTrack(newTrack);
     return newTrack;
   }
 
   updateTrack(id: string, updatedTrack: ITrack): ITrack {
-    const trackIndex = this.dbService.db.tracks.findIndex(t => t.id === id);
-    const track = this.dbService.db.tracks.find(t => t.id === id);
-
-    if (trackIndex === -1) {
-      throw new NotFoundException(`Track with id ${id} not found`);
-    }
-    this.dbService.db.tracks.splice(trackIndex, 1, {...track, ...updatedTrack});
-    return this.dbService.db.tracks[trackIndex];
+    return this.dbService.updateTrack(id, updatedTrack);
   }
 
   deleteTrack(id: string): void {
-    const trackIndex = this.dbService.db.tracks.findIndex(t => t.id === id);
-    if (trackIndex === -1) {
-      throw new NotFoundException(`Track with id ${id} not found`);
-    }
-    this.dbService.db.tracks.splice(trackIndex, 1);
+    this.dbService.deleteTrack(id);
   }
 }
