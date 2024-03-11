@@ -1,36 +1,37 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { User, CreateUserDto, UpdatePasswordDto } from 'src/dto/user';
+import { IUser, CreateUserDto, UpdatePasswordDto } from 'src/dto/user';
+import { DbService } from 'src/db/db.service';
 import * as uuid from 'uuid';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
+  constructor(private readonly dbService: DbService) {}
 
-  getAllUsers(): User[] {
-    return this.users;
+  getAllUsers(): IUser[] {
+    return this.dbService.db.users
   }
 
-  getUserById(id: string): User {
-    const user = this.users.find(u => u.id === id);
+  getUserById(id: string): IUser {
+    const user = this.dbService.db.users.find(u => u.id === id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     return user;
   }
 
-  createUser(createUserDto: CreateUserDto): User {
-    const newUser: User = {
+  createUser(createUserDto: CreateUserDto): IUser {
+    const newUser: IUser = {
       id: uuid.v4(),
       version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       ...createUserDto,
     };
-    this.users.push(newUser);
+    this.dbService.db.users.push(newUser);
     return newUser;
   }
 
-  updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): User {
+  updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): IUser {
     const user = this.getUserById(id);
 
     if (user.password !== updatePasswordDto.oldPassword) {
@@ -45,10 +46,10 @@ export class UsersService {
   }
 
   deleteUser(id: string): void {
-    const index = this.users.findIndex(u => u.id === id);
+    const index = this.dbService.db.users.findIndex(u => u.id === id);
     if (index === -1) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    this.users.splice(index, 1);
+    this.dbService.db.users.splice(index, 1);
   }
 }

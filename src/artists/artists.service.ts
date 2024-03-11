@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { DbService } from 'src/db/db.service';
 import { IArtist } from 'src/dto/music';
 import * as uuid from 'uuid';
 
 @Injectable()
 export class ArtistsService {
-  private artists: IArtist[] = [];
+  constructor(private readonly dbService: DbService) {}
 
   getAllArtists(): IArtist[] {
-    return this.artists;
+    return this.dbService.db.artists;
   }
 
   getArtistById(id: string): IArtist {
-    const artist = this.artists.find(a => a.id === id);
+    const artist = this.dbService.db.artists.find(a => a.id === id);
     if (!artist) {
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
@@ -24,28 +25,28 @@ export class ArtistsService {
       id: uuid.v4()
     }
 
-    this.artists.push(newArtist);
+    this.dbService.db.artists.push(newArtist);
     return newArtist;
   }
 
   updateArtist(id: string, updatedArtist: IArtist): IArtist {
-    const artistIndex = this.artists.findIndex(a => a.id === id);
-    const artist = this.artists.find(a => a.id === id);
+    const artistIndex = this.dbService.db.artists.findIndex(a => a.id === id);
+    const artist = this.dbService.db.artists.find(a => a.id === id);
 
     if (artistIndex === -1) {
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
 
-    this.artists.splice(artistIndex, 1, {...artist, ...updatedArtist});
-    return this.artists[artistIndex];
+    this.dbService.db.artists.splice(artistIndex, 1, {...artist, ...updatedArtist});
+    return this.dbService.db.artists[artistIndex];
   }
 
   deleteArtist(id: string): void {
-    const artistIndex = this.artists.findIndex(a => a.id === id);
+    const artistIndex = this.dbService.db.artists.findIndex(a => a.id === id);
 
     if (artistIndex === -1) {
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
-    this.artists.splice(artistIndex, 1);
+    this.dbService.db.artists.splice(artistIndex, 1);
   }
 }

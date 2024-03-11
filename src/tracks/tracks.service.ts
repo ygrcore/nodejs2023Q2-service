@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { DbService } from 'src/db/db.service';
 import { ITrack } from 'src/dto/music';
 import * as uuid from 'uuid';
 
 @Injectable()
 export class TracksService {
-  private tracks: ITrack[] = [];
+  constructor(private readonly dbService: DbService) {}
 
   getAllTracks(): ITrack[] {
-    return this.tracks;
+    return this.dbService.db.tracks;
   }
 
   getTrackById(id: string): ITrack {
-    const track = this.tracks.find(t => t.id === id);
+    const track = this.dbService.db.tracks.find(t => t.id === id);
     if (!track) {
       throw new NotFoundException(`Track with id ${id} not found`);
     }
@@ -23,26 +24,26 @@ export class TracksService {
       ...track,
       id: uuid.v4(),
     }
-    this.tracks.push(newTrack);
+    this.dbService.db.tracks.push(newTrack);
     return newTrack;
   }
 
   updateTrack(id: string, updatedTrack: ITrack): ITrack {
-    const trackIndex = this.tracks.findIndex(t => t.id === id);
-    const track = this.tracks.find(t => t.id === id);
+    const trackIndex = this.dbService.db.tracks.findIndex(t => t.id === id);
+    const track = this.dbService.db.tracks.find(t => t.id === id);
 
     if (trackIndex === -1) {
       throw new NotFoundException(`Track with id ${id} not found`);
     }
-    this.tracks.splice(trackIndex, 1, {...track, ...updatedTrack});
-    return this.tracks[trackIndex];
+    this.dbService.db.tracks.splice(trackIndex, 1, {...track, ...updatedTrack});
+    return this.dbService.db.tracks[trackIndex];
   }
 
   deleteTrack(id: string): void {
-    const trackIndex = this.tracks.findIndex(t => t.id === id);
+    const trackIndex = this.dbService.db.tracks.findIndex(t => t.id === id);
     if (trackIndex === -1) {
       throw new NotFoundException(`Track with id ${id} not found`);
     }
-    this.tracks.splice(trackIndex, 1);
+    this.dbService.db.tracks.splice(trackIndex, 1);
   }
 }
