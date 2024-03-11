@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ITrack, IAlbum, IArtist } from 'src/dto/music';
 import { IDatabase } from 'src/dto/dbase';
 
 @Injectable()
@@ -36,5 +37,29 @@ export class DbService {
       albums: [],
       tracks: [],
     },
+  };
+
+  addToFavorites(entity: 'artists' | 'albums' | 'tracks', item: IArtist | IAlbum | ITrack): void {
+    if (!this.db.favorites[entity]) {
+      throw new NotFoundException(`Entity ${entity} not found in favorites`);
+    }
+
+    const isExistInFavorites = this.db.favorites[entity].some((entity) => entity === item.id);
+
+    if (!isExistInFavorites) {
+      this.db.favorites[entity].push(item.id);
+    }
+  }
+
+  deleteFromFavorites(entity: 'artists' | 'albums' | 'tracks', itemId: string): void {
+    if (!this.db.favorites[entity]) {
+      throw new NotFoundException(`Entity ${entity} not found in favorites`);
+    }
+
+    const index = this.db.favorites[entity].findIndex((item) => item === itemId);
+
+    if (index !== -1) {
+      this.db.favorites[entity].splice(index, 1);
+    }
   }
 }
