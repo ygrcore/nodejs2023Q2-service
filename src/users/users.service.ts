@@ -1,48 +1,79 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { IUser, CreateUserDto, UpdatePasswordDto } from 'src/dto/user';
-import { DbService } from 'src/db/db.service';
-import * as uuid from 'uuid';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { DbService } from '../db/db.service';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(private dbService: DbService) {}
+  constructor(private db: DbService) {}
 
-  getAllUsers(): IUser[] {
-    return this.dbService.getAllUsers();
+  hidePasswordResponse(obj: User) {
+    const copyObj = { ...obj };
+    const { password, ...rest } = copyObj;
+    return rest;
   }
 
-  getUserById(id: string): IUser {
-    return this.dbService.getUserById(id);
+  findAll() {
+    return this.db.users.map((user) => this.hidePasswordResponse(user));
   }
 
-  createUser(createUserDto: CreateUserDto): IUser {
-    const newUser: IUser = {
-      id: uuid.v4(),
+  findOne(id: string) {
+    const user = this.db.users.find((user) => user.id === id);
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.hidePasswordResponse(user);
+  }
+
+  create(createUserDto: CreateUserDto) {
+    const { login, password } = createUserDto;
+
+    const newUser = {
+      id: uuidv4(),
+      login,
+      password,
       version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      ...createUserDto,
     };
 
-    this.dbService.addUser(newUser);
-    return newUser;
+    this.db.users.push(newUser);
+
+    return this.hidePasswordResponse(newUser);
   }
 
-  updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): IUser {
-    const user = this.getUserById(id);
-
-    if (user.password !== updatePasswordDto.oldPassword) {
-      throw new ForbiddenException('Old password is incorrect');
+  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+    const { oldPassword, newPassword } = updatePasswordDto;
+    const foundUser = this.db.users.find((user) => user.id === id);
+    if (!foundUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-
-    user.password = updatePasswordDto.newPassword;
-    user.version++;
-    user.updatedAt = Date.now();
-
-    return user;
+    if (foundUser.password === oldPassword) {
+      if (oldPassword === newPassword) {
+        throw new UnauthorizedException('New password must be different from the old one');
+      }
+      foundUser.password = newPassword;
+      foundUser.updatedAt = Date.now();
+      foundUser.version += 1;
+      return this.hidePasswordResponse(foundUser);
+    } else {
+      throw new ForbiddenException('Old password is wrong');
+    }
   }
 
-  deleteUser(id: string): void {
-    this.dbService.deleteUser(id);
+  remove(id: string) {
+    const foundIndex = this.db.users.findIndex((user) => user.id === id);
+    if (foundIndex !== -1) {
+      this.db.users.splice(foundIndex, 1);
+      return;
+    } else {
+      throw new NotFoundException(`User with ${id} not Found`);
+    }
   }
 }

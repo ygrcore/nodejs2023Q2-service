@@ -1,34 +1,110 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UsePipes,
+  ValidationPipe,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  Delete,
+  HttpCode,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdatePasswordDto } from '../dto/user';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from './entities/user.entity';
 
+@ApiTags('user')
 @Controller('user')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers() {
-    return this.usersService.getAllUsers();
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({ status: 200, description: 'All users', type: [User] })
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string) {
-    return this.usersService.getUserById(id);
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'User found',
+    type: User
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'UserId is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+  })
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.usersService.findOne(id);
   }
 
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  @ApiOperation({ summary: 'Create user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created user',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Required fields are missed',
+  })
+  @UsePipes(new ValidationPipe())
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Put(':id')
-  updatePassword(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto) {
-    return this.usersService.updateUserPassword(id, updatePasswordDto);
+  @ApiOperation({ summary: 'Update password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Updated password',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'UserId is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'oldPassword is wrong',
+  })
+  @UsePipes(new ValidationPipe())
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    return this.usersService.updatePassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    this.usersService.deleteUser(id);
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiResponse({
+    status: 204,
+    description: 'Deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'UserId is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+  })
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.usersService.remove(id);
   }
 }
-

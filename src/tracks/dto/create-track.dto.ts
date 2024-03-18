@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateAlbumDto {
+export class CreateTrackDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -10,8 +10,11 @@ export class CreateAlbumDto {
   @ApiProperty({ required: false })
   artistId: string | null;
 
+  @ApiProperty({ required: false })
+  albumId: string | null;
+
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  year: number;
+  duration: number;
 }
