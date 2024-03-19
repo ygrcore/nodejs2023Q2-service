@@ -1,17 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as yamljs from 'yamljs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('NODEJS2024Q1-service')
-    .setDescription('The service API description')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document: OpenAPIObject = yamljs.load('./doc/api.yaml');
   SwaggerModule.setup('api', app, document);
 
   const configService = app.get(ConfigService);
@@ -19,6 +15,6 @@ async function bootstrap() {
 
   await app.listen(PORT);
 
-  console.log(`Server started on ${await app.getUrl()}`);
+  console.log(`Server started on PORT: ${PORT}`);
 }
 bootstrap();
