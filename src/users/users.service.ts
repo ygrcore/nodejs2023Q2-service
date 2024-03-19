@@ -34,13 +34,14 @@ export class UsersService {
   create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
+    const currentTimestamp = Date.now();
     const newUser = {
       id: uuidv4(),
       login,
       password,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: currentTimestamp,
+      updatedAt: currentTimestamp,
     };
 
     this.db.users.push(newUser);
