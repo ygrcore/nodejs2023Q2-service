@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { DbService } from '../db/db.service';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  constructor(private db: DbService) {}
+  constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
 
   hidePasswordResponse(obj: User) {
     const copyObj = { ...obj };
@@ -20,18 +21,19 @@ export class UsersService {
     return rest;
   }
 
-  findAll() {
-    return this.db.users.map((user) => this.hidePasswordResponse(user));
+  async findAll() {
+    const users = await this.usersRepository.find();
+    return users.map((user) => this.hidePasswordResponse(user));
   }
 
-  findOne(id: string) {
-    const user = this.db.users.find((user) => user.id === id);
+  async findOne(id: string) {
+    const user = await this.usersRepository.findOneBy({id});
     if (!user) throw new NotFoundException('User not found');
 
     return this.hidePasswordResponse(user);
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
     const currentTimestamp = Date.now();
@@ -44,14 +46,16 @@ export class UsersService {
       updatedAt: currentTimestamp,
     };
 
-    this.db.users.push(newUser);
+    await this.usersRepository.save(newUser)
 
     return this.hidePasswordResponse(newUser);
   }
 
-  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     const { oldPassword, newPassword } = updatePasswordDto;
-    const foundUser = this.db.users.find((user) => user.id === id);
+
+    const foundUser = await this.usersRepository.findOneBy({id});
+
     if (!foundUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -68,10 +72,11 @@ export class UsersService {
     }
   }
 
-  remove(id: string) {
-    const foundIndex = this.db.users.findIndex((user) => user.id === id);
-    if (foundIndex !== -1) {
-      this.db.users.splice(foundIndex, 1);
+  async remove(id: string) {
+    const foundIndex = await this.usersRepository.findOneBy({id});
+
+    if (foundIndex) {
+      await this.usersRepository.remove(foundIndex);
       return;
     } else {
       throw new NotFoundException(`User with ${id} not Found`);

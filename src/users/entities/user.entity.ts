@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
+  @Generated('uuid')
   id: string; // uuid v4
 
   @Column()
@@ -14,9 +15,9 @@ export class User {
   @Column()
   version: number; // integer number, increments on update
 
-  @Column()
+  @CreateDateColumn()
   createdAt: number; // timestamp of creation
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt: number; // timestamp of last update
 }
