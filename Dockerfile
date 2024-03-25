@@ -10,4 +10,8 @@ COPY . .
 
 COPY ./dist ./dist
 
+RUN npm run build
+
 CMD [ "npm", "run", "start:dev" ]
+
+EXPOSE 4000
