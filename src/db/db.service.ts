@@ -15,15 +15,7 @@ export class DbService {
         grammy: false,
       }
   ];
-  tracks: Track[] = [
-      {
-        id: '3e49a59f-e6f4-49e7-a17b-70546c28e873',
-        name: 'Test',
-        artistId: '3e49a59f-e6f4-49e7-a17b-02d62d06594c',
-        albumId: null,
-        duration: 2,
-      }
-  ];
+  tracks: Track[] = [];
   albums: Album[] = [];
   favs: Fav = {
     artists: [],
