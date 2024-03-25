@@ -93,23 +93,23 @@ export class ArtistsController {
     return this.artistsService.update(id, updateArtistDto);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete artist by ID' })
-  @ApiResponse({
-    status: 204,
-    description: 'Artist deleted',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'ArtistId is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description:
-      'Artist not found',
-  })
-  @HttpCode(204)
-  remove(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.artistsService.remove(id);
-  }
+  // @Delete(':id')
+  // @ApiOperation({ summary: 'Delete artist by ID' })
+  // @ApiResponse({
+  //   status: 204,
+  //   description: 'Artist deleted',
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: 'ArtistId is invalid (not uuid)',
+  // })
+  // @ApiResponse({
+  //   status: 404,
+  //   description:
+  //     'Artist not found',
+  // })
+  // @HttpCode(204)
+  // remove(@Param('id', new ParseUUIDPipe()) id: string) {
+  //   return this.artistsService.remove(id);
+  // }
 }

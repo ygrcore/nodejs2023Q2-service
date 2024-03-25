@@ -1,65 +1,92 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DbService } from '../db/db.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
+import { Artist } from 'src/artists/entities/artists.entity';
 
 @Injectable()
 export class AlbumService {
-  constructor(private db: DbService) {}
+  constructor(
+    @InjectRepository(Album)
+    private albumsRepository: Repository<Album>,
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>,
+  ) {}
 
-  create(createAlbumDto: CreateAlbumDto) {
-    const { artistId, ...albumData } = createAlbumDto;
-    const newAlbum: Album = {
-      ...albumData,
-      id: uuidv4(),
-      artistId: artistId || null,
-    };
+  async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
+    const { artistId, name, year } = createAlbumDto;
 
-    this.db.albums.push(newAlbum);
-    return newAlbum;
+    let artist: Artist;
+
+    if (artistId) {
+      artist = await this.artistsRepository.findOneBy({ id: artistId })
+    }
+
+    const newAlbum = new Album();
+
+    newAlbum.artist = artist;
+    newAlbum.name = name;
+    newAlbum.year = year
+
+    return await this.albumsRepository.save(newAlbum);
+    // return newAlbum;
   }
 
-  findAll() {
-    return this.db.albums;
+  async findAll(): Promise<Album[]> {
+    return await this.albumsRepository.find();
   }
 
-  findOne(id: string) {
-    const album = this.db.albums.find((album) => album.id === id);
+  async findOne(id: string): Promise<Album> {
+    const album = this.albumsRepository.findOneBy({id});
 
-    if (album === undefined) throw new NotFoundException(`Album with ${id} not found`);
+    if (!album) throw new NotFoundException(`Album with ${id} not found`);
 
     return album;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const index = this.db.albums.findIndex((album) => album.id === id);
+  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+    const { artistId, name, year } = updateAlbumDto;
 
-    if (index === -1) throw new NotFoundException(`Album with ${id} not found`);
+    const album = await this.findOne(id);
 
-    this.db.albums[index] = { ...updateAlbumDto, id };
-    return this.db.albums[index];
+    if (!album) throw new NotFoundException(`Album with ${id} not found`);
+
+    const artist = artistId ? await this.artistsRepository.findOneBy({id: artistId}) : null;
+
+    album.name = name;
+    album.year = year;
+    album.artist = artist;
+
+    return await this.albumsRepository.save(album);
+    return album;
   }
 
-  remove(id: string) {
-    const index = this.db.albums.findIndex((album) => album.id === id);
+  async remove(id: string) {
+    const album = await this.findOne(id);
 
-    if (index === -1) throw new NotFoundException(`Album with ${id} not found`);
+    if (!album) throw new NotFoundException(`Album with ${id} not found`);
 
-    const tracksIndex = this.db.tracks.findIndex(
-      (track) => track.albumId === id,
-    );
-    if (tracksIndex !== -1)
-      this.db.tracks[tracksIndex].albumId = null;
+    await this.albumsRepository.remove(album);
+    // const index = this.db.albums.findIndex((album) => album.id === id);
 
-    const favsIndex = this.db.favs.albums.findIndex(
-      (albumId) => albumId === id,
-    );
-    if (favsIndex !== -1)
-      this.db.favs.albums.splice(favsIndex, 1);
+    // if (index === -1) throw new NotFoundException(`Album with ${id} not found`);
 
-    this.db.albums.splice(index, 1);
-    return;
+    // const tracksIndex = this.db.tracks.findIndex(
+    //   (track) => track.albumId === id,
+    // );
+    // if (tracksIndex !== -1)
+    //   this.db.tracks[tracksIndex].albumId = null;
+
+    // const favsIndex = this.db.favs.albums.findIndex(
+    //   (albumId) => albumId === id,
+    // );
+    // if (favsIndex !== -1)
+    //   this.db.favs.albums.splice(favsIndex, 1);
+
+    // this.db.albums.splice(index, 1);
+    // return;
   }
 }

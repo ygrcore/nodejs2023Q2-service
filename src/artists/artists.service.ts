@@ -41,32 +41,32 @@ export class ArtistsService {
     }
   }
 
-  remove(id: string) {
-    const index = this.db.artists.findIndex((artist) => artist.id === id);
+  // remove(id: string) {
+  //   const index = this.db.artists.findIndex((artist) => artist.id === id);
 
-    if (index === -1) {
-      throw new NotFoundException(`Artist with ${id} not found`);
-    } else {
-      this.db.artists.splice(index, 1);
+  //   if (index === -1) {
+  //     throw new NotFoundException(`Artist with ${id} not found`);
+  //   } else {
+  //     this.db.artists.splice(index, 1);
 
-      const tracksIndex = this.db.tracks.findIndex(
-        (track) => track.artistId === id,
-      );
-      if (tracksIndex !== -1)
-        this.db.tracks[tracksIndex].artistId = null;
+  //     const tracksIndex = this.db.tracks.findIndex(
+  //       (track) => track.artistId === id,
+  //     );
+  //     if (tracksIndex !== -1)
+  //       this.db.tracks[tracksIndex].artistId = null;
 
-      const albumsIndex = this.db.albums.findIndex(
-        (album) => album.artistId === id,
-      );
-      if (albumsIndex !== -1)
-        this.db.albums[albumsIndex].artistId = null;
+  //     const albumsIndex = this.db.albums.findIndex(
+  //       (album) => album.artistId === id,
+  //     );
+  //     if (albumsIndex !== -1)
+  //       this.db.albums[albumsIndex].artistId = null;
 
-      const favsIndex = this.db.favs.artists.findIndex(
-        (artistId) => artistId === id,
-      );
-      if (favsIndex !== -1) this.db.artists.splice(favsIndex, 1);
+  //     const favsIndex = this.db.favs.artists.findIndex(
+  //       (artistId) => artistId === id,
+  //     );
+  //     if (favsIndex !== -1) this.db.artists.splice(favsIndex, 1);
 
-      return;
-    }
-  }
+  //     return;
+  //   }
+  // }
 }
