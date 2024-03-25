@@ -74,23 +74,5 @@ export class AlbumService {
     if (!album) throw new NotFoundException(`Album with ${id} not found`);
 
     await this.albumsRepository.remove(album);
-    // const index = this.db.albums.findIndex((album) => album.id === id);
-
-    // if (index === -1) throw new NotFoundException(`Album with ${id} not found`);
-
-    // const tracksIndex = this.db.tracks.findIndex(
-    //   (track) => track.albumId === id,
-    // );
-    // if (tracksIndex !== -1)
-    //   this.db.tracks[tracksIndex].albumId = null;
-
-    // const favsIndex = this.db.favs.albums.findIndex(
-    //   (albumId) => albumId === id,
-    // );
-    // if (favsIndex !== -1)
-    //   this.db.favs.albums.splice(favsIndex, 1);
-
-    // this.db.albums.splice(index, 1);
-    // return;
   }
 }

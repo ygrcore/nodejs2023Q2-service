@@ -1,10 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Generated,
+} from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   @Generated('uuid')
-  id: string; // uuid v4
+  id: string;
 
   @Column()
   login: string;
@@ -13,11 +20,11 @@ export class User {
   password: string;
 
   @Column('int')
-  version: number; // integer number, increments on update
+  version: number;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date; // timestamp of creation
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date; // timestamp of last update
+  updatedAt: Date;
 }

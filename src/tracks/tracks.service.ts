@@ -91,13 +91,5 @@ export class TracksService {
     if (!track) throw new NotFoundException(`Track with ${id} not found`);
 
     await this.tracksRepository.remove(track);
-
-    // const favsIndex = this.db.favs.tracks.findIndex(
-    //   (trackId) => trackId === id,
-    // );
-    // if (favsIndex !== -1) this.db.favs.tracks.splice(favsIndex, 1);
-
-    // this.db.tracks.splice(index, 1);
-    // return;
   }
 }
