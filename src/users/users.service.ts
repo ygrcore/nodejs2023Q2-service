@@ -27,7 +27,8 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.usersRepository.findOneBy({id});
+    const user = await this.usersRepository.findOne({ where: { id } });
+
     if (!user) throw new NotFoundException('User not found');
 
     return this.hidePasswordResponse(user);
@@ -36,8 +37,8 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
-    const currentTimestamp = Date.now();
-    const newUser = {
+    const currentTimestamp = new Date();
+    const newUser: Partial<User> = {
       id: uuidv4(),
       login,
       password,
@@ -46,9 +47,17 @@ export class UsersService {
       updatedAt: currentTimestamp,
     };
 
-    await this.usersRepository.save(newUser)
+    await this.usersRepository.save(newUser);
 
-    return this.hidePasswordResponse(newUser);
+    const userRes = this.hidePasswordResponse(newUser as User);
+
+    const res = {
+      ...userRes,
+      createdAt: userRes.createdAt.getTime(),
+      updatedAt: userRes.updatedAt.getTime(),
+    }
+
+    return res;
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
@@ -64,9 +73,20 @@ export class UsersService {
         throw new UnauthorizedException('New password must be different from the old one');
       }
       foundUser.password = newPassword;
-      foundUser.updatedAt = Date.now();
+      foundUser.updatedAt = new Date();
       foundUser.version += 1;
-      return this.hidePasswordResponse(foundUser);
+
+      await this.usersRepository.save(foundUser);
+
+      const userRes = this.hidePasswordResponse(foundUser as User);
+
+      const res = {
+        ...userRes,
+        createdAt: userRes.createdAt.getTime(),
+        updatedAt: userRes.updatedAt.getTime(),
+      }
+
+      return res;
     } else {
       throw new ForbiddenException('Old password is wrong');
     }

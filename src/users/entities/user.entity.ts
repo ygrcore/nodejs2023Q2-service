@@ -12,12 +12,12 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column('int')
   version: number; // integer number, increments on update
 
-  @CreateDateColumn()
-  createdAt: number; // timestamp of creation
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date; // timestamp of creation
 
-  @UpdateDateColumn()
-  updatedAt: number; // timestamp of last update
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date; // timestamp of last update
 }

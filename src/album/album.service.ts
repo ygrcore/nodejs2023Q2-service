@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAlbumDto } from './dto/create-album.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
 import { Artist } from 'src/artists/entities/artists.entity';
@@ -19,20 +18,20 @@ export class AlbumService {
   async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
     const { artistId, name, year } = createAlbumDto;
 
-    let artist: Artist;
+    let artist: Artist | undefined;
 
     if (artistId) {
-      artist = await this.artistsRepository.findOneBy({ id: artistId })
+      artist = await this.artistsRepository.findOne({ where: { id: artistId } });
     }
 
     const newAlbum = new Album();
 
-    newAlbum.artist = artist;
+    newAlbum.artistId = artist === undefined ? null : artist;
     newAlbum.name = name;
     newAlbum.year = year
 
-    return await this.albumsRepository.save(newAlbum);
-    // return newAlbum;
+    await this.albumsRepository.save(newAlbum);
+    return newAlbum;
   }
 
   async findAll(): Promise<Album[]> {
@@ -40,14 +39,14 @@ export class AlbumService {
   }
 
   async findOne(id: string): Promise<Album> {
-    const album = this.albumsRepository.findOneBy({id});
+    const album = await this.albumsRepository.findOneBy({id});
 
     if (!album) throw new NotFoundException(`Album with ${id} not found`);
 
     return album;
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
     const { artistId, name, year } = updateAlbumDto;
 
     const album = await this.findOne(id);
@@ -58,13 +57,18 @@ export class AlbumService {
 
     album.name = name;
     album.year = year;
-    album.artist = artist;
+    album.artistId = artist;
 
-    return await this.albumsRepository.save(album);
-    return album;
+    await this.albumsRepository.save(album);
+
+    const res = {
+      ...album,
+      artistId: album.artistId.id
+    }
+    return res;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const album = await this.findOne(id);
 
     if (!album) throw new NotFoundException(`Album with ${id} not found`);

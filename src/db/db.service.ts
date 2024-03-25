@@ -7,16 +7,7 @@ import { Fav } from 'src/favs/entities/fav.entity';
 
 @Injectable()
 export class DbService {
-  users: User[] = [
-      {
-        id: 'c973c927-1d2a-47bd-a65c-02d62d06594c',
-        version: 1,
-        createdAt: 1710149665242,
-        updatedAt: 1710149665242,
-        login: 'string',
-        password: 'string'
-      }
-  ];
+  users: User[] = [];
   artists: Artist[] = [
       {
         id: '3e49a59f-e6f4-49e7-a17b-02d62d06594c',

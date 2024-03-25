@@ -1,72 +1,81 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { DbService } from '../db/db.service';
-import { v4 as uuidv4 } from 'uuid';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { Artist } from './entities/artists.entity';
 
 @Injectable()
 export class ArtistsService {
-  constructor(private db: DbService) {}
+  constructor(@InjectRepository(Artist) private artistsRepository: Repository<Artist>) {}
 
-  create(createArtistDto: CreateArtistDto) {
-    const newArtist = {
-      id: uuidv4(),
-      ...createArtistDto,
-    };
+  async create(createArtistDto: CreateArtistDto): Promise<Artist> {
+    const { name, grammy } = createArtistDto;
 
-    this.db.artists.push(newArtist);
+    const newArtist = new Artist();
+    newArtist.name = name;
+    newArtist.grammy = grammy;
+
+    await this.artistsRepository.save(newArtist);
 
     return newArtist;
   }
 
-  findAll() {
-    return this.db.artists;
+  async findAll(): Promise<Artist[]> {
+    return await this.artistsRepository.find();
   }
 
-  findOne(id: string) {
-    const artist = this.db.artists.find((artist) => artist.id === id);
+  async findOne(id: string): Promise<Artist> {
+    const artist = await this.artistsRepository.findOneBy({ id });
 
-    if (artist === undefined) throw new NotFoundException(`Artist with ${id} not found`);
+    if (!artist) throw new NotFoundException(`Artist with ${id} not found`);
 
     return artist;
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
-    const index = this.db.artists.findIndex((artist) => artist.id === id);
-    if (index === -1) {
+  async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
+    let artist: Artist = await this.findOne(id)
+    if (!artist) {
       throw new NotFoundException(`Artist with ${id} not found`);
     } else {
-      this.db.artists[index] = { ...updateArtistDto, id };
-      return this.db.artists[index];
+      artist = { ...updateArtistDto, id };
+      await this.artistsRepository.save(artist);
+      return artist;
     }
   }
 
-  // remove(id: string) {
-  //   const index = this.db.artists.findIndex((artist) => artist.id === id);
+  async remove(id: string): Promise<void> {
+    const artist = await this.artistsRepository.findOneBy({ id });
 
-  //   if (index === -1) {
-  //     throw new NotFoundException(`Artist with ${id} not found`);
-  //   } else {
-  //     this.db.artists.splice(index, 1);
+    if (!artist) throw new NotFoundException(`Artist with ${id} not found`);
 
-  //     const tracksIndex = this.db.tracks.findIndex(
-  //       (track) => track.artistId === id,
-  //     );
-  //     if (tracksIndex !== -1)
-  //       this.db.tracks[tracksIndex].artistId = null;
+    await this.artistsRepository.remove(artist);
 
-  //     const albumsIndex = this.db.albums.findIndex(
-  //       (album) => album.artistId === id,
-  //     );
-  //     if (albumsIndex !== -1)
-  //       this.db.albums[albumsIndex].artistId = null;
+    // const index = this.db.artists.findIndex((artist) => artist.id === id);
 
-  //     const favsIndex = this.db.favs.artists.findIndex(
-  //       (artistId) => artistId === id,
-  //     );
-  //     if (favsIndex !== -1) this.db.artists.splice(favsIndex, 1);
+    // if (index === -1) {
+    //   throw new NotFoundException(`Artist with ${id} not found`);
+    // } else {
+    //   this.db.artists.splice(index, 1);
 
-  //     return;
-  //   }
-  // }
+    //   const tracksIndex = this.db.tracks.findIndex(
+    //     (track) => track.artistId === id,
+    //   );
+    //   if (tracksIndex !== -1)
+    //     this.db.tracks[tracksIndex].artistId = null;
+
+    //   const albumsIndex = this.db.albums.findIndex(
+    //     (album) => album.artistId === id,
+    //   );
+    //   if (albumsIndex !== -1)
+    //     this.db.albums[albumsIndex].artistId = null;
+
+    //   const favsIndex = this.db.favs.artists.findIndex(
+    //     (artistId) => artistId === id,
+    //   );
+    //   if (favsIndex !== -1) this.db.artists.splice(favsIndex, 1);
+
+    //   return;
+    // }
+  }
 }
